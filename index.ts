@@ -1,8 +1,9 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import fs from "fs";
 import { Client, NoAuth } from "whatsapp-web.js";
 import authRoute from "./routes/auth";
+import chatRoute from "./routes/chat";
 import bodyParser from "body-parser";
 
 dotenv.config();
@@ -52,30 +53,35 @@ waclient.on("ready", () => {
 waclient.initialize();
 
 const app: Express = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(req.method + " : " + req.path);
+  const secret = req.headers?.["x-mywa-secret"];
+  if (secret === process.env.WHATSAPP_API_SECRET) {
+    return next();
+  }
+  res.status(400).send("Bad Request");
 });
 
 app.use("/auth", authRoute);
+app.use("/chat", chatRoute);
 
 const backend = app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at https://localhost:${port}`);
 });
 
-enum Signals {
+export enum Signals {
   SIGHUP = 1,
   SIGINT = 2,
   SIGTERM = 15,
 }
 
-type SignalsKey = keyof typeof Signals;
+export type SignalsKey = keyof typeof Signals;
 
-const shutdown = (signal: string, value: number) => {
+export const shutdown = (signal: string, value: number) => {
   console.log(`${signal} / ${value} signal received: closing all server`);
   try {
     fs.unlinkSync("latest.qr");
@@ -88,6 +94,7 @@ const shutdown = (signal: string, value: number) => {
   backend.close(() => {
     console.log("Express backend server closed");
   });
+  process.exit();
 };
 
 Object.keys(Signals).map((signal) => {
