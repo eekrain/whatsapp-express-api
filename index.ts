@@ -5,6 +5,7 @@ import { Client, LocalAuth, NoAuth } from "whatsapp-web.js";
 import authRoute from "./routes/auth";
 import chatRoute from "./routes/chat";
 import bodyParser from "body-parser";
+import rimraf from "rimraf";
 
 dotenv.config();
 
@@ -16,7 +17,7 @@ global.waClientStatus = {
 
 export const waclient = new Client({
   puppeteer: { args: ["--no-sandbox", "--disable-setuid-sandbox"] },
-  // authStrategy: new NoAuth(),
+  restartOnAuthFail: true, // related problem solution
   authStrategy: new LocalAuth(),
 });
 
@@ -31,14 +32,26 @@ waclient.on("authenticated", () => {
 
   console.log("AUTH!");
 
-  try {
-    fs.unlinkSync("latest.qr");
-    console.log("success deleting latest.qr on authenticated");
-  } catch (err) {
-    console.log(
-      "fail deleting latest.qr on authenticated, probably already deleted"
-    );
-  }
+  console.log("deleting latest.qr");
+  rimraf("./latest.qr", (err) => {
+    if (err)
+      console.log(
+        "fail deleting latest.qr on authenticated, probably already deleted",
+        err
+      );
+  });
+});
+
+waclient.on("disconnected", (reason) => {
+  console.log("CLIENT DISCONNECTED", reason);
+  // Destroy and reinitialize the client when disconnected
+  global.waClientStatus = {
+    isAuthenticated: false,
+    isClientReady: false,
+    qrReady: false,
+  };
+  waclient.destroy();
+  waclient.initialize();
 });
 
 waclient.on("auth_failure", () => {
@@ -73,42 +86,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use("/auth", authRoute);
 app.use("/chat", chatRoute);
 
-const backend = app.listen(port, () => {
+app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
   console.log(
     `⚡️[server]: Check auth status http://localhost:${port}/auth/getauthstatus`
   );
-});
-
-export enum Signals {
-  SIGHUP = 1,
-  SIGINT = 2,
-  SIGTERM = 15,
-}
-
-export type SignalsKey = keyof typeof Signals;
-
-export const shutdown = (signal: string, value: number) => {
-  console.log(`${signal} / ${value} signal received: closing all server`);
-  try {
-    fs.unlinkSync("latest.qr");
-    console.log("success deleting latest.qr on SIGTERM");
-  } catch (err) {
-    console.log(
-      "fail deleting latest.qr on authenticated, probably already deleted"
-    );
-  }
-  waclient.destroy();
-  console.log("Wweb destroyed");
-  backend.close(() => {
-    console.log("Express backend server closed");
-  });
-  process.exit();
-};
-
-Object.keys(Signals).map((signal) => {
-  process.on(signal, () => {
-    console.log(`process received a ${signal} signal`);
-    shutdown(signal, Signals[signal as SignalsKey]);
-  });
 });

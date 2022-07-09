@@ -5,6 +5,7 @@ import { waclient } from "..";
 import fs from "fs";
 import vuri from "valid-url";
 import { Stream } from "stream";
+import rimraf from "rimraf";
 
 const router = Router();
 
@@ -91,7 +92,13 @@ router.post("/sendimage/:phone", async (req, res) => {
               res.send({
                 isError: false,
               });
-              fs.unlinkSync(path);
+              rimraf(path, (err) => {
+                if (err)
+                  console.log(
+                    "🚀 ~ file: chat.ts ~ line 95 ~ rimraf ~ err",
+                    err
+                  );
+              });
             }
           });
       });
