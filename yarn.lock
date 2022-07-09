@@ -155,6 +155,11 @@ asynckit@^0.4.0:
   resolved "https://registry.npmmirror.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
+await-to-js@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npmmirror.com/await-to-js/-/await-to-js-3.0.0.tgz#70929994185616f4675a91af6167eb61cc92868f"
+  integrity sha512-zJAaP9zxTcvTHRlejau3ZOY4V7SRpiByf3/dxx2uyKxxor19tpmpV2QRsTKikckwhaPmr2dVpxxMr7jOCYVp5g==
+
 axios@^0.27.2:
   version "0.27.2"
   resolved "https://registry.npmmirror.com/axios/-/axios-0.27.2.tgz#207658cc8621606e586c85db4b41a750e756d972"
@@ -1660,10 +1665,10 @@ webidl-conversions@^3.0.0:
   resolved "https://registry.npmmirror.com/webidl-conversions/-/webidl-conversions-3.0.1.tgz#24534275e2a7bc6be7bc86611cc16ae0a5654871"
   integrity sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==
 
-whatsapp-web.js@^1.16.6:
-  version "1.16.6"
-  resolved "https://registry.npmmirror.com/whatsapp-web.js/-/whatsapp-web.js-1.16.6.tgz#aa2df3c94f5422adb6042ab341276f2ef068ebe7"
-  integrity sha512-y60KszDx15sBWrRC/+p4tQHb0CFStcvrFuDLzaD+weBiXL22CK5/RLaHG9qLE8Z2Nsac6TV8MxiBvVssR5FSqA==
+whatsapp-web.js@1.17.0:
+  version "1.17.0"
+  resolved "https://registry.npmmirror.com/whatsapp-web.js/-/whatsapp-web.js-1.17.0.tgz#b4cc916916b9a5c7d010f82df9e2c5a4a4ebe834"
+  integrity sha512-oLl5ExnBOt0d6oIx+ksRJKkMNshnmg5b2fU2LKMPCF7XtRaAcwtrdZSEXSnBLAQShJWKMKrG5l0D32U3hOub/w==
   dependencies:
     "@pedroslopez/moduleraid" "^5.0.2"
     fluent-ffmpeg "^2.1.2"

@@ -1,7 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import fs from "fs";
-import { Client, NoAuth } from "whatsapp-web.js";
+import { Client, LocalAuth, NoAuth } from "whatsapp-web.js";
 import authRoute from "./routes/auth";
 import chatRoute from "./routes/chat";
 import bodyParser from "body-parser";
@@ -16,7 +16,8 @@ global.waClientStatus = {
 
 export const waclient = new Client({
   puppeteer: { args: ["--no-sandbox", "--disable-setuid-sandbox"] },
-  authStrategy: new NoAuth(),
+  // authStrategy: new NoAuth(),
+  authStrategy: new LocalAuth(),
 });
 
 waclient.on("qr", (qr: any) => {
@@ -34,7 +35,9 @@ waclient.on("authenticated", () => {
     fs.unlinkSync("latest.qr");
     console.log("success deleting latest.qr on authenticated");
   } catch (err) {
-    console.log("fail deleting latest.qr on authenticated", err);
+    console.log(
+      "fail deleting latest.qr on authenticated, probably already deleted"
+    );
   }
 });
 
