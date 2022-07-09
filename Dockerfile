@@ -1,4 +1,4 @@
-FROM node:12.22.0-buster
+FROM node:16.16.0-buster
 
 RUN apt-get update && \
   apt-get install -y \
