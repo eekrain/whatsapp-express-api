@@ -57,6 +57,7 @@ waclient.initialize();
 
 const app: Express = express();
 const port = process.env.PORT || 5000;
+console.log("🚀 ~ file: index.ts ~ line 60 ~ port", port);
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -73,7 +74,10 @@ app.use("/auth", authRoute);
 app.use("/chat", chatRoute);
 
 const backend = app.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at https://localhost:${port}`);
+  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+  console.log(
+    `⚡️[server]: Check auth status http://localhost:${port}/auth/getauthstatus`
+  );
 });
 
 export enum Signals {
@@ -90,7 +94,9 @@ export const shutdown = (signal: string, value: number) => {
     fs.unlinkSync("latest.qr");
     console.log("success deleting latest.qr on SIGTERM");
   } catch (err) {
-    console.log("fail deleting latest.qr on SIGTERM", err);
+    console.log(
+      "fail deleting latest.qr on authenticated, probably already deleted"
+    );
   }
   waclient.destroy();
   console.log("Wweb destroyed");
