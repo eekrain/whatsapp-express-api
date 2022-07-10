@@ -18,6 +18,8 @@ global.waClientStatus = {
   qrReady: false,
 };
 
+const withFCMNotif = process.env.WITH_FCM_NOTIFICATION === "true";
+
 const firebaseApp = initFirebaseApp();
 
 export const myFirebaseAdminApp = () => {
@@ -41,16 +43,6 @@ waclient.on("qr", (qr: any) => {
 waclient.on("authenticated", () => {
   console.log("AUTHENTICATED!");
   global.waClientStatus = { ...global.waClientStatus, isAuthenticated: true };
-  const send = async () => {
-    try {
-      await sendNotification({
-        title: "Akun Whatsapp Online",
-        body: "Notifikasi pembelian transaksi akan dihandle.",
-      });
-    } catch (error) {
-      console.log("🚀 ~ file: index.ts ~ line 42 ~ send ~ error", error);
-    }
-  };
 
   console.log("deleting latest.qr");
   rimraf("./latest.qr", (err) => {
@@ -60,7 +52,18 @@ waclient.on("authenticated", () => {
         err
       );
   });
-  send();
+
+  const sendNotif = async () => {
+    try {
+      await sendNotification({
+        title: "Akun Whatsapp Online",
+        body: "Notifikasi pembelian transaksi akan dihandle.",
+      });
+    } catch (error) {
+      console.log("🚀 ~ file: index.ts ~ line 42 ~ send ~ error", error);
+    }
+  };
+  if (withFCMNotif) sendNotif();
 });
 
 waclient.on("disconnected", (reason) => {
@@ -72,7 +75,7 @@ waclient.on("disconnected", (reason) => {
     qrReady: false,
   };
 
-  const reinit = async () => {
+  const sendNotif = async () => {
     try {
       await sendNotification({
         title: "Akun Whatsapp Offline",
@@ -85,7 +88,7 @@ waclient.on("disconnected", (reason) => {
       console.log("🚀 ~ file: index.ts ~ line 58 ~ waclient.on ~ error", error);
     }
   };
-  reinit();
+  if (withFCMNotif) sendNotif();
 });
 
 waclient.on("auth_failure", () => {
