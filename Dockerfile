@@ -18,6 +18,8 @@ COPY index.ts .
 COPY tsconfig.json .
 COPY ./routes ./routes
 COPY ./types ./types
+COPY ./graphql ./graphql
+COPY ./utils ./utils
 
 RUN yarn build
 

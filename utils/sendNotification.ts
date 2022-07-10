@@ -1,5 +1,5 @@
 import to from "await-to-js";
-import { myFirebaseAdminApp } from "..";
+import { myFirebaseAdminApp } from "../index";
 import { getAdminSdk } from "./graphqlClient";
 
 interface INotification {
