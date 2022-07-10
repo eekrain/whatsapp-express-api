@@ -1,8 +1,8 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import { waclient } from "..";
 import fs from "fs/promises";
 import to from "await-to-js";
-import { WAState, ClientInfo } from "whatsapp-web.js";
+import { ClientInfo } from "whatsapp-web.js";
 
 const router = Router();
 

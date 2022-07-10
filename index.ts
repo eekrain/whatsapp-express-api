@@ -6,6 +6,9 @@ import authRoute from "./routes/auth";
 import chatRoute from "./routes/chat";
 import bodyParser from "body-parser";
 import rimraf from "rimraf";
+import { sendNotification } from "./utils/sendNotification";
+import { initFirebaseApp } from "./utils/firebaseAdmin";
+import { getMessaging } from "firebase-admin/messaging";
 
 dotenv.config();
 
@@ -13,6 +16,14 @@ global.waClientStatus = {
   isAuthenticated: false,
   isClientReady: false,
   qrReady: false,
+};
+
+const firebaseApp = initFirebaseApp();
+
+export const myFirebaseAdminApp = () => {
+  return {
+    messaging: getMessaging(firebaseApp),
+  };
 };
 
 export const waclient = new Client({
@@ -28,9 +39,18 @@ waclient.on("qr", (qr: any) => {
 });
 
 waclient.on("authenticated", () => {
+  console.log("AUTHENTICATED!");
   global.waClientStatus = { ...global.waClientStatus, isAuthenticated: true };
-
-  console.log("AUTH!");
+  const send = async () => {
+    try {
+      await sendNotification({
+        title: "Akun Whatsapp Online",
+        body: "Notifikasi pembelian transaksi akan dihandle.",
+      });
+    } catch (error) {
+      console.log("🚀 ~ file: index.ts ~ line 42 ~ send ~ error", error);
+    }
+  };
 
   console.log("deleting latest.qr");
   rimraf("./latest.qr", (err) => {
@@ -40,6 +60,7 @@ waclient.on("authenticated", () => {
         err
       );
   });
+  send();
 });
 
 waclient.on("disconnected", (reason) => {
@@ -50,8 +71,21 @@ waclient.on("disconnected", (reason) => {
     isClientReady: false,
     qrReady: false,
   };
-  waclient.destroy();
-  waclient.initialize();
+
+  const reinit = async () => {
+    try {
+      await sendNotification({
+        title: "Akun Whatsapp Offline",
+        body: "Segera login kembali. Notifikasi pembelian transaksi tidak akan dapat terkirim!",
+      });
+
+      await waclient.destroy();
+      await waclient.initialize();
+    } catch (error) {
+      console.log("🚀 ~ file: index.ts ~ line 58 ~ waclient.on ~ error", error);
+    }
+  };
+  reinit();
 });
 
 waclient.on("auth_failure", () => {
