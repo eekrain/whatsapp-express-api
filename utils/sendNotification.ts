@@ -1,5 +1,5 @@
 import to from "await-to-js";
-import { myFirebaseAdminApp } from "../index";
+import { myFirebaseAdminApp } from "./firebaseAdmin";
 import { getAdminSdk } from "./graphqlClient";
 
 interface INotification {
@@ -24,7 +24,7 @@ export const sendNotification = async (notification: INotification) => {
     );
   } else {
     const tokens = fcmRaw.map((x) => x.fcm_token);
-    const firebaseAdmin = myFirebaseAdminApp();
+    const firebaseAdmin = await myFirebaseAdminApp();
 
     const [errNotif, resNotif] = await to(
       sdk.Notification_CreateOneNotification({

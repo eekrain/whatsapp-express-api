@@ -7,8 +7,6 @@ import chatRoute from "./routes/chat";
 import bodyParser from "body-parser";
 import rimraf from "rimraf";
 import { sendNotification } from "./utils/sendNotification";
-import { initFirebaseApp } from "./utils/firebaseAdmin";
-import { getMessaging } from "firebase-admin/messaging";
 
 dotenv.config();
 
@@ -19,14 +17,6 @@ global.waClientStatus = {
 };
 
 const withFCMNotif = process.env.WITH_FCM_NOTIFICATION === "true";
-
-const firebaseApp = initFirebaseApp();
-
-export const myFirebaseAdminApp = () => {
-  return {
-    messaging: getMessaging(firebaseApp),
-  };
-};
 
 export const waclient = new Client({
   puppeteer: { args: ["--no-sandbox", "--disable-setuid-sandbox"] },

@@ -1,27 +1,46 @@
+import to from "await-to-js";
+import axios from "axios";
 import { initializeApp, cert } from "firebase-admin/app";
+import { getMessaging } from "firebase-admin/messaging";
+import { getNhostConfig, nhost } from "./nhost";
 
-// This value must match with the file rocketjaket-hasura-firebase-adminsdk-72pei-e68995a8b3.json
-const serviceAccount = () => ({
-  type: process.env.FIREBASE_ADMIN_TYPE,
-  project_id: process.env.FIREBASE_ADMIN_PROJECT_ID,
-  private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
-  private_key: process.env.FIREBASE_ADMIN_PRIVATE_KEY,
-  client_email: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-  client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
-  auth_uri: process.env.FIREBASE_ADMIN_AUTH_URI,
-  token_uri: process.env.FIREBASE_ADMIN_TOKEN_URI,
-  auth_provider_x509_cert_url:
-    process.env.FIREBASE_ADMIN_AUTH_PROVIDER_X509_CERT_URL,
-  client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_X509_CERT_URL,
+const getFirebaseConfig = () => ({
+  FIREBASE_ADMIN_CONFIG_FILE_ID:
+    process.env.FIREBASE_ADMIN_CONFIG_FILE_ID || "",
 });
 
-export const initFirebaseApp = () => {
-  const firebaseConfig = serviceAccount();
-  return initializeApp({
+export const myFirebaseAdminApp = async () => {
+  const url = `${
+    getNhostConfig().NHOST_BACKEND_URL
+  }${nhost.storage.getPublicUrl({
+    fileId: getFirebaseConfig().FIREBASE_ADMIN_CONFIG_FILE_ID,
+  })}`;
+  console.log(
+    "🚀 ~ file: firebaseAdmin.ts ~ line 18 ~ myFirebaseAdminApp ~ url",
+    url
+  );
+
+  const header = {
+    headers: { "x-hasura-admin-secret": getNhostConfig().NHOST_ADMIN_SECRET },
+  };
+  const [err, res] = await to(axios.get(url, header));
+  const firebaseConfig = res?.data;
+  if (!firebaseConfig) throw new Error("Firebase config not found");
+
+  // console.log(
+  //   "🚀 ~ file: firebaseAdmin.ts ~ line 30 ~ myFirebaseAdminApp ~ firebaseConfig",
+  //   firebaseConfig
+  // );
+
+  const app = initializeApp({
     credential: cert({
       projectId: firebaseConfig.project_id,
       clientEmail: firebaseConfig.client_email,
       privateKey: firebaseConfig.private_key,
     }),
   });
+
+  return {
+    messaging: getMessaging(app),
+  };
 };
