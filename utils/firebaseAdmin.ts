@@ -9,7 +9,7 @@ const getFirebaseConfig = () => ({
     process.env.FIREBASE_ADMIN_CONFIG_FILE_ID || "",
 });
 
-export const myFirebaseAdminApp = async () => {
+export const initFirebaseApp = async () => {
   const url = `${
     process.env.APP_ENV === "development"
       ? getNhostConfig().NHOST_BACKEND_URL
@@ -18,7 +18,7 @@ export const myFirebaseAdminApp = async () => {
     fileId: getFirebaseConfig().FIREBASE_ADMIN_CONFIG_FILE_ID,
   })}`;
   console.log(
-    "🚀 ~ file: firebaseAdmin.ts ~ line 18 ~ myFirebaseAdminApp ~ url",
+    "🚀 ~ file: firebaseAdmin.ts ~ line 18 ~ initFirebaseApp ~ url",
     url
   );
 
@@ -30,7 +30,7 @@ export const myFirebaseAdminApp = async () => {
   if (!firebaseConfig) throw new Error("Firebase config not found");
 
   // console.log(
-  //   "🚀 ~ file: firebaseAdmin.ts ~ line 30 ~ myFirebaseAdminApp ~ firebaseConfig",
+  //   "🚀 ~ file: firebaseAdmin.ts ~ line 30 ~ initFirebaseApp ~ firebaseConfig",
   //   firebaseConfig
   // );
 

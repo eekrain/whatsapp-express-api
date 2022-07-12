@@ -1,5 +1,5 @@
 import to from "await-to-js";
-import { myFirebaseAdminApp } from "./firebaseAdmin";
+import { myFirebaseAdminApp } from "..";
 import { getAdminSdk } from "./graphqlClient";
 
 interface INotification {
@@ -25,7 +25,10 @@ export const sendNotification = async (notification: INotification) => {
     );
   } else {
     const tokens = fcmRaw.map((x) => x.fcm_token);
-    const firebaseAdmin = await myFirebaseAdminApp();
+    const firebaseAdmin = myFirebaseAdminApp;
+    if (!firebaseAdmin) {
+      throw new Error("Firebase admin app not initialized");
+    }
 
     const [errNotif, resNotif] = await to(
       sdk.Notification_CreateOneNotification({

@@ -8,6 +8,8 @@ import bodyParser from "body-parser";
 import rimraf from "rimraf";
 import { sendNotification } from "./utils/sendNotification";
 import { getWhatsappAPISubsribeStatus } from "./utils/getWhatsappAPISubsribeStatus";
+import { Messaging } from "firebase-admin/messaging";
+import { initFirebaseApp } from "./utils/firebaseAdmin";
 
 dotenv.config();
 
@@ -18,6 +20,18 @@ global.waClientStatus = {
 };
 
 const withFCMNotif = process.env.WITH_FCM_NOTIFICATION === "true";
+
+export let myFirebaseAdminApp: {
+  messaging: Messaging;
+} | null = null;
+
+const init1 = () => {
+  const init2 = async () => {
+    myFirebaseAdminApp = await initFirebaseApp();
+  };
+  init2();
+};
+init1();
 
 export const waclient = new Client({
   puppeteer: { args: ["--no-sandbox", "--disable-setuid-sandbox"] },
