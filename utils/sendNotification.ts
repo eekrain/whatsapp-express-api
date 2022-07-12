@@ -10,6 +10,7 @@ interface INotification {
 
 export const sendNotification = async (notification: INotification) => {
   const sdk = getAdminSdk();
+
   const [errFcm, resFcm] = await to(sdk.Notification_GetActiveFcmTokens());
   const fcmRaw = resFcm?.data.active_fcm_tokens;
   console.log(

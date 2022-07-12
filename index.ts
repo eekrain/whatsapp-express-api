@@ -7,6 +7,7 @@ import chatRoute from "./routes/chat";
 import bodyParser from "body-parser";
 import rimraf from "rimraf";
 import { sendNotification } from "./utils/sendNotification";
+import { getWhatsappAPISubsribeStatus } from "./utils/getWhatsappAPISubsribeStatus";
 
 dotenv.config();
 
@@ -28,6 +29,18 @@ waclient.on("qr", (qr: any) => {
   global.waClientStatus = { ...global.waClientStatus, qrReady: true };
   console.log("QR RECEIVED", qr);
   fs.writeFileSync("./latest.qr", qr);
+
+  const sendNotif = async () => {
+    try {
+      await sendNotification({
+        title: "Akun Whatsapp Offline",
+        body: "API Whatsapp Web tidak mendapatkan session akun Whatsapp. Segera login untuk handle notifikasi pengiriman nota!",
+      });
+    } catch (error) {
+      console.log("🚀 ~ file: index.ts ~ line 42 ~ send ~ error", error);
+    }
+  };
+  if (withFCMNotif) sendNotif();
 });
 
 waclient.on("authenticated", () => {
@@ -44,11 +57,20 @@ waclient.on("authenticated", () => {
   });
 
   const sendNotif = async () => {
+    const { isSubscribed } = await getWhatsappAPISubsribeStatus();
+
     try {
-      await sendNotification({
-        title: "Akun Whatsapp Online",
-        body: "Notifikasi pembelian transaksi akan dihandle.",
-      });
+      if (isSubscribed) {
+        await sendNotification({
+          title: "Akun Whatsapp Online",
+          body: "Notifikasi pembelian transaksi akan dihandle.",
+        });
+      } else {
+        await sendNotification({
+          title: "Akun Whatsapp Offline",
+          body: "Langganan API Whatsapp Web habis. Notifikasi pembelian transaksi akan dihandle. Segera perpanjang untuk handle notifikasi pengiriman nota.",
+        });
+      }
     } catch (error) {
       console.log("🚀 ~ file: index.ts ~ line 42 ~ send ~ error", error);
     }
