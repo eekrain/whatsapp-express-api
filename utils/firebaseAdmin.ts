@@ -11,7 +11,9 @@ const getFirebaseConfig = () => ({
 
 export const myFirebaseAdminApp = async () => {
   const url = `${
-    getNhostConfig().NHOST_BACKEND_URL
+    process.env.APP_ENV === "development"
+      ? getNhostConfig().NHOST_BACKEND_URL
+      : ""
   }${nhost.storage.getPublicUrl({
     fileId: getFirebaseConfig().FIREBASE_ADMIN_CONFIG_FILE_ID,
   })}`;
