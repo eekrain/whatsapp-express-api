@@ -9,6 +9,8 @@ RUN apt-get update && \
   libgtk-3-0 && \
   rm -rf /var/lib/apt/lists/*
 
+VOLUME ./.wwebjs_auth
+
 COPY package.json .
 COPY yarn.lock .
 
