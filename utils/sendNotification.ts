@@ -29,27 +29,29 @@ export const sendNotification = async (notification: INotification) => {
     if (!firebaseAdmin) {
       throw new Error("Firebase admin app not initialized");
     }
-
-    const [errNotif, resNotif] = await to(
-      sdk.Notification_CreateOneNotification({
-        notification: {
-          notification_body: notification.body,
-          notification_title: notification.title,
-        },
-      })
-    );
-    if (errNotif || !resNotif) {
-      console.log(
-        "🚀 ~ file: UpdateAvailableQtyOnInsertTransactionItem.ts ~ line 161 ~ errNotif",
-        errNotif
+    let notification_id: number | undefined;
+    if (process.env.SAVE_NOTIFICATION === "true") {
+      const [errNotif, resNotif] = await to(
+        sdk.Notification_CreateOneNotification({
+          notification: {
+            notification_body: notification.body,
+            notification_title: notification.title,
+          },
+        })
       );
-    } else {
-      console.log(
-        "🚀 ~ file: sendNotification.ts ~ line 33 ~ sendNotification ~ resNotif",
-        resNotif
-      );
+      if (errNotif || !resNotif) {
+        console.log(
+          "🚀 ~ file: UpdateAvailableQtyOnInsertTransactionItem.ts ~ line 161 ~ errNotif",
+          errNotif
+        );
+      } else {
+        console.log(
+          "🚀 ~ file: sendNotification.ts ~ line 33 ~ sendNotification ~ resNotif",
+          resNotif
+        );
+      }
+      notification_id = resNotif?.data.insert_notification_one?.id;
     }
-    const notification_id = resNotif?.data.insert_notification_one?.id;
 
     const [errMulticast, resMulticast] = await to(
       firebaseAdmin.messaging.sendMulticast({
@@ -60,9 +62,9 @@ export const sendNotification = async (notification: INotification) => {
             body: notification.body,
             data: {
               link: notification.link,
-              notification_id: notification_id
-                ? notification_id.toString()
-                : undefined,
+              notification_id: !notification_id
+                ? undefined
+                : notification_id.toString(),
             },
             android: {
               channelId: "default",
